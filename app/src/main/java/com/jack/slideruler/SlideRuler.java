@@ -6,7 +6,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.Display;
 import android.view.View;
+import android.view.WindowManager;
 
 /**
  * Created by Jack on 2017/5/3.
@@ -33,6 +35,47 @@ public class SlideRuler extends View{
     //指示线颜色
     private int indicatrixColor;
 
+    private int WrapcontentWidth;
+    private int WrapcontentHight;
+
+    private Display display =null;
+
+    public void setMinValue(float minValue) {
+        this.minValue = minValue;
+    }
+
+    public void setMaxValue(float maxValue) {
+        this.maxValue = maxValue;
+    }
+
+    public void setCurrentValue(float currentValue) {
+        this.currentValue = currentValue;
+    }
+
+    public void setMinUnitValue(float minUnitValue) {
+        this.minUnitValue = minUnitValue;
+    }
+
+    public void setTextSize(int textSize) {
+        this.textSize = textSize;
+    }
+
+    public void setTextColor(int textColor) {
+        this.textColor = textColor;
+    }
+
+    public void setDividerColor(int dividerColor) {
+        this.dividerColor = dividerColor;
+    }
+
+    public void setIndicatrixColor(int indicatrixColor) {
+        this.indicatrixColor = indicatrixColor;
+    }
+
+    public void setMinCurrentValue(float minCurrentValue) {
+        this.minCurrentValue = minCurrentValue;
+    }
+
     public SlideRuler(Context context) {
         this(context,null);
     }
@@ -43,6 +86,9 @@ public class SlideRuler extends View{
 
     public SlideRuler(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context,attrs,defStyleAttr);
+        display=((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        WrapcontentWidth=display.getWidth();
+
         TypedArray typedArray=context.getTheme().obtainStyledAttributes(attrs,R.styleable.slideruler,defStyleAttr,0);
         int numCount=typedArray.getIndexCount();
         for(int i=0;i<numCount;i++){
@@ -83,11 +129,28 @@ public class SlideRuler extends View{
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        int widthModel=MeasureSpec.getMode(widthMeasureSpec);
+        int heightModel=MeasureSpec.getMode(heightMeasureSpec);
+        int widthSize=MeasureSpec.getSize(widthMeasureSpec);
+        int heightSize=MeasureSpec.getSize(heightMeasureSpec);
+        int width=0;
+        int height=0;
+        if(widthModel==MeasureSpec.EXACTLY){
+            width=widthSize;
+        }else{
+            width=WrapcontentWidth;
+        }
+        if(heightModel==MeasureSpec.EXACTLY){
+            height=heightSize;
+        }else{
+            height=(int)(getPaddingBottom()+getPaddingTop()+(WrapcontentHight/4));
+        }
+        setMeasuredDimension(width,height);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
     }
-    
+
 }

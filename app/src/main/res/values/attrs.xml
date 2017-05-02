@@ -5,10 +5,10 @@
     <attr name="maxValue" format="float"/>
     <attr name="currentValue" format="float"></attr>
     <attr name="minUnitValue" format="float"></attr>
+    <attr name="minCurrentValue" format="float"></attr>
     <attr name="textSize" format="integer"></attr>
     <attr name="textColor" format="integer"></attr>
     <attr name="dividerColor" format="integer"></attr>
-    <attr name="minCurrentValue" format="float"></attr>
     <attr name="indicatrixColor" format="integer"></attr>
 
     <declare-styleable name="slideruler">
