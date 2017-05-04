@@ -15,9 +15,10 @@
         android:id="@+id/slideruler"
         android:layout_width="match_parent"
         android:layout_height="70dp"
+        android:layout_centerInParent="true"
         app:minValue="0"
         app:maxValue="199000"
-        app:currentValue="10000"
+        app:currentValue="1000"
         app:minUnitValue="1000"
         app:minCurrentValue="1000"/>
 
