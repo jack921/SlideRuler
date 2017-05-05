@@ -18,27 +18,28 @@ import android.view.WindowManager;
 public class SlideRuler extends View{
 
     //最小值
-    private int minValue=0;
+    private int minValue;
     //最大值
-    private int maxValue=199000;
+    private int maxValue;
     //当前值
-    private int currentValue=10000;
+    private int currentValue;
     //最小单位值
-    private int minUnitValue=1000;
+    private int minUnitValue;
     //最小当前值
-    private int minCurrentValue=1000;
+    private int minCurrentValue;
     //字体大小
     private int textSize;
     //字体颜色
     private int textColor;
     //线颜色
-    private int dividerColor=Color.parseColor("#000000");
+    private int dividerColor;
     //指示线颜色
-    private int indicatrixColor=Color.parseColor("#000000");
+    private int indicatrixColor;
     //画线的画笔
     private Paint linePaint;
 
     private int marginWidth=0;
+    private int marginHeight=0;
     private int wrapcontentWidth;
     private int wrapcontentHight;
 
@@ -94,44 +95,21 @@ public class SlideRuler extends View{
         wrapcontentWidth=display.getWidth();
 
         TypedArray typedArray=context.getTheme().obtainStyledAttributes(attrs,R.styleable.slideruler,defStyleAttr,0);
-        int numCount=typedArray.getIndexCount();
-        for(int i=0;i<numCount;i++){
-            int attr=typedArray.getIndex(i);
-            switch(attr){
-                case R.styleable.slideruler_minValue:
-                    minValue=typedArray.getInteger(i,0);
-                    break;
-                case R.styleable.slideruler_maxValue:
-                    maxValue=typedArray.getInteger(i,199000);
-                    break;
-                case R.styleable.slideruler_currentValue:
-                    currentValue=typedArray.getInteger(i,10000);
-                    break;
-                case R.styleable.slideruler_minUnitValue:
-                    minCurrentValue=typedArray.getInteger(i,1000);
-                    break;
-                case R.styleable.slideruler_minCurrentValue:
-                    minCurrentValue=typedArray.getInteger(i,1000);
-                    break;
-                case R.styleable.slideruler_textSize:
-                    textSize=typedArray.getDimensionPixelSize(attr,(int) TypedValue.applyDimension(
-                            TypedValue.COMPLEX_UNIT_SP,15,getResources().getDisplayMetrics()));
-                    break;
-                case R.styleable.slideruler_textColor:
-                    textColor=typedArray.getColor(attr, Color.BLACK);
-                    break;
-                case R.styleable.slideruler_dividerColor:
-                    dividerColor=typedArray.getColor(attr,Color.BLACK);
-                    break;
-                case R.styleable.slideruler_indicatrixColor:
-                    indicatrixColor=typedArray.getColor(attr,Color.GREEN);
-                    break;
-            }
-        }
+        textSize = typedArray.getDimensionPixelOffset(R.styleable.slideruler_textSize,24);
+        textColor=typedArray.getColor(R.styleable.slideruler_textColor,Color.DKGRAY);
+        dividerColor=typedArray.getColor(R.styleable.slideruler_dividerColor,Color.BLACK);
+        indicatrixColor=typedArray.getColor(R.styleable.slideruler_indicatrixColor,Color.GREEN);
+        minValue=typedArray.getInteger(R.styleable.slideruler_minValue,0);
+        maxValue=typedArray.getInteger(R.styleable.slideruler_maxValue,199000);
+        currentValue=typedArray.getInteger(R.styleable.slideruler_currentValue,10000);
+        minUnitValue=typedArray.getInteger(R.styleable.slideruler_minUnitValue,1000);
+        minCurrentValue=typedArray.getInteger(R.styleable.slideruler_minCurrentValue,1000);
 
         linePaint=new Paint();
         linePaint.setAntiAlias(true);
+        linePaint.setTextAlign(Paint.Align.CENTER);
         linePaint.setStyle(Paint.Style.STROKE);
+        linePaint.setTextSize(textSize);
 
     }
 
@@ -160,8 +138,9 @@ public class SlideRuler extends View{
     @Override
     protected void onDraw(Canvas canvas) {
         marginWidth=getWidth()/30;
-        drawBaseLine(canvas);
+        marginHeight=getWidth()/40;
         drawBaseView(canvas);
+        drawBaseLine(canvas);
     }
 
     //画最基础的两条线
@@ -174,16 +153,17 @@ public class SlideRuler extends View{
 
     //画初始的界面
     public void drawBaseView(Canvas canvas){
-        int left= currentValue/minUnitValue;
-        for(int i=1;i<left+1;i++){
-            int xValue=getWidth()/2-(marginWidth*i);
-            if(i/10==0){
-                canvas.drawLine(xValue,getHeight(),xValue,getHeight()-25,linePaint);
-            }else{
+        int left= (currentValue-minValue)/minUnitValue;
+        int startCursor=(getWidth()/2)-(marginWidth*left);
+        for(int i=0;i<(maxValue/minUnitValue);i++){
+            float xValue=startCursor+(marginWidth*i);
+            if(i%10==0){
                 canvas.drawLine(xValue,getHeight(),xValue,getHeight()-40,linePaint);
+                canvas.drawText((minCurrentValue*i)+"",xValue,getHeight()-40-marginHeight,linePaint);
+            }else{
+                canvas.drawLine(xValue,getHeight(),xValue,getHeight()-25,linePaint);
             }
         }
-
 
     }
 
