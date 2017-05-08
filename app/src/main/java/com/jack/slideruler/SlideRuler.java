@@ -5,9 +5,13 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -38,12 +42,14 @@ public class SlideRuler extends View{
     //画线的画笔
     private Paint linePaint;
 
+    private GestureDetector mDetector;
+    private Display display =null;
     private int marginWidth=0;
     private int marginHeight=0;
     private int wrapcontentWidth;
     private int wrapcontentHight;
 
-    private Display display =null;
+    private int data;
 
     public void setMinValue(int minValue) {
         this.minValue = minValue;
@@ -111,6 +117,7 @@ public class SlideRuler extends View{
         linePaint.setStyle(Paint.Style.STROKE);
         linePaint.setTextSize(textSize);
 
+        mDetector=new GestureDetector(context,myGestureListener);
     }
 
     @Override
@@ -143,6 +150,12 @@ public class SlideRuler extends View{
         drawBaseLine(canvas);
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        mDetector.onTouchEvent(event);
+        return true;
+    }
+
     //画最基础的两条线
     public void drawBaseLine(Canvas canvas){
         linePaint.setColor(indicatrixColor);
@@ -164,9 +177,27 @@ public class SlideRuler extends View{
                 canvas.drawLine(xValue,getHeight(),xValue,getHeight()-25,linePaint);
             }
         }
-
     }
 
+    private GestureDetector.SimpleOnGestureListener myGestureListener =new  GestureDetector.SimpleOnGestureListener(){
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            Log.e("distanceX",data+"");
+            updateView((int)distanceX);
+            return true;
+        }
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            Log.e("velocityX",velocityX+"");
+            return true;
+        }
+    };
+
+    public void updateView(int distanceX){
+        data=data+(int)distanceX;
+
+
+    }
 
 
 }
