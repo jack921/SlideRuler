@@ -48,6 +48,7 @@ public class SlideRuler extends View{
     private int marginHeight=0;
     private int wrapcontentWidth;
     private int wrapcontentHight;
+    private Canvas tempCanvas;
 
     private int data;
 
@@ -144,6 +145,7 @@ public class SlideRuler extends View{
 
     @Override
     protected void onDraw(Canvas canvas) {
+        tempCanvas=canvas;
         marginWidth=getWidth()/30;
         marginHeight=getWidth()/40;
         drawBaseView(canvas);
@@ -167,7 +169,8 @@ public class SlideRuler extends View{
     //画初始的界面
     public void drawBaseView(Canvas canvas){
         int left= (currentValue-minValue)/minUnitValue;
-        int startCursor=(getWidth()/2)-(marginWidth*left);
+        int residueData=(currentValue-minValue)%minUnitValue;
+        int startCursor=(getWidth()/2)-(marginWidth*left)-(int)(marginWidth*(float)residueData/minUnitValue);
         for(int i=0;i<(maxValue/minUnitValue);i++){
             float xValue=startCursor+(marginWidth*i);
             if(i%10==0){
@@ -194,9 +197,11 @@ public class SlideRuler extends View{
     };
 
     public void updateView(int distanceX){
-        data=data+(int)distanceX;
-
-
+        data=data+distanceX;
+        float itemNum=(float)data/marginWidth;
+        currentValue=(int)(minUnitValue*itemNum);
+        invalidate();
+        Log.e("test",currentValue+"");
     }
 
 

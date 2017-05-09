@@ -16,7 +16,7 @@
         android:layout_centerInParent="true"
         app:minValue="0"
         app:maxValue="199000"
-        app:currentValue="1000"
+        app:currentValue="1500"
         app:minUnitValue="1000"
         app:minCurrentValue="1000"/>
 
