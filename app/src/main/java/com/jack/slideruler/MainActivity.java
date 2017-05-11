@@ -11,7 +11,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        slideRuler=(SlideRuler)findViewById(R.id.slideruler);
+//        slideRuler=(SlideRuler)findViewById(R.id.slideruler);
 
     }
 

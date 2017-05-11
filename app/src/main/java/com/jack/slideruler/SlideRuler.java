@@ -14,6 +14,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Scroller;
 
 /**
  * Created by Jack on 2017/5/3.
@@ -42,13 +43,14 @@ public class SlideRuler extends View{
     //画线的画笔
     private Paint linePaint;
 
+    private Scroller scroller;
+
     private GestureDetector mDetector;
     private Display display =null;
     private int marginWidth=0;
     private int marginHeight=0;
     private int wrapcontentWidth;
-    private int wrapcontentHight;
-    private Canvas tempCanvas;
+    private int wrapcontentHeight;
 
     private int data;
 
@@ -118,6 +120,7 @@ public class SlideRuler extends View{
         linePaint.setStyle(Paint.Style.STROKE);
         linePaint.setTextSize(textSize);
 
+        scroller=new Scroller(context);
         mDetector=new GestureDetector(context,myGestureListener);
     }
 
@@ -138,18 +141,17 @@ public class SlideRuler extends View{
         if(heightModel==MeasureSpec.EXACTLY){
             height=heightSize;
         }else{
-            height=(int)(getPaddingBottom()+getPaddingTop()+(wrapcontentHight/4));
+            height=(int)(getPaddingBottom()+getPaddingTop()+(wrapcontentHeight/4));
         }
         setMeasuredDimension(width,height);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        tempCanvas=canvas;
         marginWidth=getWidth()/30;
         marginHeight=getWidth()/40;
-        drawBaseView(canvas);
         drawBaseLine(canvas);
+        drawBaseView(canvas);
     }
 
     @Override
@@ -182,16 +184,25 @@ public class SlideRuler extends View{
         }
     }
 
+    @Override
+    public void computeScroll() {
+        if(scroller.computeScrollOffset()){
+            scrollTo(scroller.getCurrX(),0);
+            postInvalidate();
+        }
+        super.computeScroll();
+    }
+
     private GestureDetector.SimpleOnGestureListener myGestureListener =new  GestureDetector.SimpleOnGestureListener(){
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            Log.e("distanceX",data+"");
+            Log.e("distanceX1",data+"");
             updateView((int)distanceX);
             return true;
         }
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            Log.e("velocityX",velocityX+"");
+//            Log.e("velocityX",velocityX+"");
             return true;
         }
     };
@@ -200,8 +211,8 @@ public class SlideRuler extends View{
         data=data+distanceX;
         float itemNum=(float)data/marginWidth;
         currentValue=(int)(minUnitValue*itemNum);
+        scroller.startScroll(scroller.getCurrX(),0,distanceX,0);
         invalidate();
-        Log.e("test",currentValue+"");
     }
 
 
