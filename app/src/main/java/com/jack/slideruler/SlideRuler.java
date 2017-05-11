@@ -120,6 +120,7 @@ public class SlideRuler extends View{
         linePaint.setStyle(Paint.Style.STROKE);
         linePaint.setTextSize(textSize);
 
+        data=marginWidth*(currentValue*minUnitValue);
         scroller=new Scroller(context);
         mDetector=new GestureDetector(context,myGestureListener);
     }
@@ -131,8 +132,8 @@ public class SlideRuler extends View{
         int heightModel=MeasureSpec.getMode(heightMeasureSpec);
         int widthSize=MeasureSpec.getSize(widthMeasureSpec);
         int heightSize=MeasureSpec.getSize(heightMeasureSpec);
-        int width=0;
-        int height=0;
+        int width;
+        int height;
         if(widthModel==MeasureSpec.EXACTLY){
             width=widthSize;
         }else{
@@ -141,7 +142,7 @@ public class SlideRuler extends View{
         if(heightModel==MeasureSpec.EXACTLY){
             height=heightSize;
         }else{
-            height=(int)(getPaddingBottom()+getPaddingTop()+(wrapcontentHeight/4));
+            height=(getPaddingBottom()+getPaddingTop()+(wrapcontentHeight/4));
         }
         setMeasuredDimension(width,height);
     }
@@ -173,7 +174,8 @@ public class SlideRuler extends View{
         int left= (currentValue-minValue)/minUnitValue;
         int residueData=(currentValue-minValue)%minUnitValue;
         int startCursor=(getWidth()/2)-(marginWidth*left)-(int)(marginWidth*(float)residueData/minUnitValue);
-        for(int i=0;i<(maxValue/minUnitValue);i++){
+        Log.e("test",(maxValue/minUnitValue)+"");
+        for(int i=0;i<(maxValue/minUnitValue)+1;i++){
             float xValue=startCursor+(marginWidth*i);
             if(i%10==0){
                 canvas.drawLine(xValue,getHeight(),xValue,getHeight()-40,linePaint);
@@ -196,8 +198,11 @@ public class SlideRuler extends View{
     private GestureDetector.SimpleOnGestureListener myGestureListener =new  GestureDetector.SimpleOnGestureListener(){
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            Log.e("distanceX1",data+"");
             updateView((int)distanceX);
+
+            if(e2.getAction()==MotionEvent.ACTION_UP){
+                Log.e("action_up","action_up");
+            }
             return true;
         }
         @Override
@@ -205,13 +210,26 @@ public class SlideRuler extends View{
 //            Log.e("velocityX",velocityX+"");
             return true;
         }
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            return super.onSingleTapUp(e);
+        }
     };
 
     public void updateView(int distanceX){
         data=data+distanceX;
-        float itemNum=(float)data/marginWidth;
-        currentValue=(int)(minUnitValue*itemNum);
-        scroller.startScroll(scroller.getCurrX(),0,distanceX,0);
+        int itemNum=data/marginWidth;
+        currentValue=(minUnitValue*itemNum);
+        if(currentValue<=minValue){
+            data=0;
+            currentValue=minValue;
+        }
+        if(currentValue>=maxValue){
+            data=marginWidth*(maxValue/minUnitValue);
+            currentValue=maxValue;
+        }
+//        scroller.startScroll(getScrollX(),0,distanceX,0);
         invalidate();
     }
 

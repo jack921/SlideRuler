@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
@@ -9,17 +10,6 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:orientation="vertical"
     tools:context="com.jack.slideruler.MainActivity">
-
-    <!--<com.jack.slideruler.SlideRuler-->
-        <!--android:id="@+id/slideruler"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="70dp"-->
-        <!--android:layout_centerInParent="true"-->
-        <!--app:minValue="0"-->
-        <!--app:maxValue="199000"-->
-        <!--app:currentValue="1500"-->
-        <!--app:minUnitValue="1000"-->
-        <!--app:minCurrentValue="1000"/>-->
 
     <com.jack.slideruler.MnScaleBar
         android:layout_width="match_parent"
@@ -31,6 +21,17 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_marginTop="20dp" />
-    
+
+    <com.jack.slideruler.SlideRuler
+        android:id="@+id/slideruler"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_centerInParent="true"
+        app:minValue="0"
+        app:maxValue="200000"
+        app:currentValue="1500"
+        app:minUnitValue="1000"
+        android:layout_marginTop="20dp"
+        app:minCurrentValue="1000"/>
 
 </LinearLayout>

@@ -74,12 +74,6 @@ public class RulerView extends View {
     // 消息
     private final int MESSAGE_SCROLL = 0;
 
-//    private OnRulerChangeListener onRulerChangeListener;
-
-//    public void setOnRulerChangeListener(OnRulerChangeListener onRulerChangeListener) {
-//        this.onRulerChangeListener = onRulerChangeListener;
-//    }
-
     public void setCurrLocation(int currLocation) {
         this.currLocation = currLocation;
     }
@@ -186,9 +180,7 @@ public class RulerView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-
         gestureDetector.onTouchEvent(event);
-
         return true;
     }
 
