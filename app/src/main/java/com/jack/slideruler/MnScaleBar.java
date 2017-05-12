@@ -78,7 +78,6 @@ public class MnScaleBar extends View {
         mPaint.setDither(true);
         mPaint.setStyle(Paint.Style.STROKE);
 
-
         canvas.drawRect(mRect, mPaint);
 
         onDrawScale(canvas); //画刻度

@@ -117,7 +117,6 @@ public class RulerView extends View {
         drawBottomLine(canvas);
         drawScale(canvas);
         drawCursor(canvas);
-
     }
 
     @Override
@@ -133,7 +132,6 @@ public class RulerView extends View {
         paint.setColor(scaleUnSelectColor);
         canvas.drawLine(0, viewHeight, viewWidth, viewHeight, paint);
     }
-
 
     private void drawCursor(Canvas canvas) {
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -199,7 +197,6 @@ public class RulerView extends View {
         }
 
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            Log.e("scrollview2","scrollview2");
             lastScrollX = getCurrentItem() * getItemWidth() + scrollingOffset;
             int maxX = getItemsCount()* getItemWidth();
             int minX = 0;

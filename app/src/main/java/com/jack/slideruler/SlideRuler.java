@@ -5,6 +5,8 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -45,6 +47,12 @@ public class SlideRuler extends View{
     private int indicatrixColor;
     //画线的画笔
     private Paint linePaint;
+    // 最低速度
+    private static final int MIN_DELTA_FOR_SCROLLING = 1;
+    // 消息
+    private final int MESSAGE_SCROLL = 0;
+    //控价的宽度
+    private int slideRulerWidth=0;
 
     private Scroller scroller;
 
@@ -154,20 +162,14 @@ public class SlideRuler extends View{
     protected void onDraw(Canvas canvas) {
         marginWidth=getWidth()/30;
         marginHeight=getWidth()/40;
-        drawBaseLine(canvas);
+        slideRulerWidth=(maxValue/minUnitValue)*marginWidth;
         drawBaseView(canvas);
+        drawBaseLine(canvas);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        switch(event.getAction()){
-            case MotionEvent.ACTION_UP:
-                actionUpView();
-                break;
-            default:
-                mDetector.onTouchEvent(event);
-                break;
-        }
+        mDetector.onTouchEvent(event);
         return true;
     }
 
@@ -176,7 +178,7 @@ public class SlideRuler extends View{
         linePaint.setColor(indicatrixColor);
         canvas.drawLine(getWidth()/2,0,getWidth()/2,getHeight(),linePaint);
         linePaint.setColor(dividerColor);
-        canvas.drawLine(0,getHeight(),getWidth(),getHeight(),linePaint);
+        canvas.drawLine(0,getHeight(),slideRulerWidth,getHeight(),linePaint);
     }
 
     //画初始的界面
@@ -184,7 +186,6 @@ public class SlideRuler extends View{
         int left= (currentValue-minValue)/minUnitValue;
         int residueData=(currentValue-minValue)%minUnitValue;
         int startCursor=(getWidth()/2)-(marginWidth*left)-(int)(marginWidth*(float)residueData/minUnitValue);
-        Log.e("test",(maxValue/minUnitValue)+"");
         for(int i=0;i<(maxValue/minUnitValue)+1;i++){
             float xValue=startCursor+(marginWidth*i);
             if(i%10==0){
@@ -200,7 +201,7 @@ public class SlideRuler extends View{
     public void computeScroll() {
         if(scroller.computeScrollOffset()){
             scrollTo(scroller.getCurrX(),0);
-            postInvalidate();
+            invalidate();
         }
     }
 
@@ -212,6 +213,7 @@ public class SlideRuler extends View{
         }
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+//            scroller.fling(data,0,(int)(-velocityX/1.5),0,0,(maxValue/minUnitValue)*marginWidth,0,0);
             return true;
         }
     };
@@ -220,6 +222,7 @@ public class SlideRuler extends View{
         data=data+distanceX;
         float itemNum=(float)data/marginWidth;
         currentValue=(int)(minUnitValue*itemNum);
+        Log.e("currentValue",currentValue+"");
         if(currentValue<=minValue){
             data=0;
             currentValue=minValue;
@@ -230,21 +233,5 @@ public class SlideRuler extends View{
         }
         invalidate();
     }
-
-    public void actionUpView(){
-        BigDecimal mData = new BigDecimal((data/marginWidth)+"").setScale(0,BigDecimal.ROUND_HALF_UP);
-        int itemNum=mData.intValue();
-        currentValue=(minUnitValue*itemNum);
-        if(currentValue<=minValue){
-            data=0;
-            currentValue=minValue;
-        }
-        if(currentValue>=maxValue){
-            data=marginWidth*(maxValue/minUnitValue);
-            currentValue=maxValue;
-        }
-        invalidate();
-    }
-
 
 }
