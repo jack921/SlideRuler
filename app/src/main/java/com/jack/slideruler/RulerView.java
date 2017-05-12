@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -188,6 +189,7 @@ public class RulerView extends View {
     private GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
 
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            Log.e("scrollview1","scrollview1");
             if (!isScrollingPerformed) {
                 isScrollingPerformed = true;
             }
@@ -197,6 +199,7 @@ public class RulerView extends View {
         }
 
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            Log.e("scrollview2","scrollview2");
             lastScrollX = getCurrentItem() * getItemWidth() + scrollingOffset;
             int maxX = getItemsCount()* getItemWidth();
             int minX = 0;

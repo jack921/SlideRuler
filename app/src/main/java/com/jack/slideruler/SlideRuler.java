@@ -16,6 +16,9 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Scroller;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+
 /**
  * Created by Jack on 2017/5/3.
  */
@@ -157,7 +160,14 @@ public class SlideRuler extends View{
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        mDetector.onTouchEvent(event);
+        switch(event.getAction()){
+            case MotionEvent.ACTION_UP:
+                actionUpView();
+                break;
+            default:
+                mDetector.onTouchEvent(event);
+                break;
+        }
         return true;
     }
 
@@ -192,34 +202,38 @@ public class SlideRuler extends View{
             scrollTo(scroller.getCurrX(),0);
             postInvalidate();
         }
-        super.computeScroll();
     }
 
     private GestureDetector.SimpleOnGestureListener myGestureListener =new  GestureDetector.SimpleOnGestureListener(){
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             updateView((int)distanceX);
-
-            if(e2.getAction()==MotionEvent.ACTION_UP){
-                Log.e("action_up","action_up");
-            }
             return true;
         }
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-//            Log.e("velocityX",velocityX+"");
             return true;
-        }
-
-        @Override
-        public boolean onSingleTapUp(MotionEvent e) {
-            return super.onSingleTapUp(e);
         }
     };
 
     public void updateView(int distanceX){
         data=data+distanceX;
-        int itemNum=data/marginWidth;
+        float itemNum=(float)data/marginWidth;
+        currentValue=(int)(minUnitValue*itemNum);
+        if(currentValue<=minValue){
+            data=0;
+            currentValue=minValue;
+        }
+        if(currentValue>=maxValue){
+            data=marginWidth*(maxValue/minUnitValue);
+            currentValue=maxValue;
+        }
+        invalidate();
+    }
+
+    public void actionUpView(){
+        BigDecimal mData = new BigDecimal((data/marginWidth)+"").setScale(0,BigDecimal.ROUND_HALF_UP);
+        int itemNum=mData.intValue();
         currentValue=(minUnitValue*itemNum);
         if(currentValue<=minValue){
             data=0;
@@ -229,7 +243,6 @@ public class SlideRuler extends View{
             data=marginWidth*(maxValue/minUnitValue);
             currentValue=maxValue;
         }
-//        scroller.startScroll(getScrollX(),0,distanceX,0);
         invalidate();
     }
 
