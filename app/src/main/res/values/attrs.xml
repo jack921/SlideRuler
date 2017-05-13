@@ -1,26 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <attr name="minValue" format="integer"/>
-    <attr name="maxValue" format="integer"/>
-    <attr name="currentValue" format="integer"></attr>
-    <attr name="minUnitValue" format="integer"></attr>
-    <attr name="minCurrentValue" format="integer"></attr>
-    <attr name="textSize" format="integer"></attr>
-    <attr name="textColor" format="integer"></attr>
-    <attr name="dividerColor" format="integer"></attr>
-    <attr name="indicatrixColor" format="integer"></attr>
-
     <declare-styleable name="slideruler">
-        <attr name="minValue"></attr>
-        <attr name="maxValue"></attr>
-        <attr name="currentValue"></attr>
-        <attr name="minUnitValue"></attr>
-        <attr name="textSize"></attr>
-        <attr name="textColor"></attr>
-        <attr name="dividerColor"></attr>
-        <attr name="minCurrentValue"></attr>
-        <attr name="indicatrixColor"></attr>
+        <attr name="minValue" format="integer"/>
+        <attr name="maxValue" format="integer"/>
+        <attr name="currentValue" format="integer"></attr>
+        <attr name="minUnitValue" format="integer"></attr>
+        <attr name="minCurrentValue" format="integer"></attr>
+        <attr name="textSize" format="dimension"></attr>
+        <attr name="textColor" format="integer"></attr>
+        <attr name="dividerColor" format="integer"></attr>
+        <attr name="indicatrixColor" format="integer"></attr>
     </declare-styleable>
 
 

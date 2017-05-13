@@ -54,8 +54,8 @@ public class SlideRuler extends View{
     //控价的宽度
     private int slideRulerWidth=0;
 
+    private SlideRulerDataInterface slideRulerDataInterface;
     private Scroller scroller;
-
     private GestureDetector mDetector;
     private Display display =null;
     private int marginWidth=0;
@@ -63,43 +63,7 @@ public class SlideRuler extends View{
     private int wrapcontentWidth;
     private int wrapcontentHeight;
 
-    private int data;
-
-    public void setMinValue(int minValue) {
-        this.minValue = minValue;
-    }
-
-    public void setMaxValue(int maxValue) {
-        this.maxValue = maxValue;
-    }
-
-    public void setCurrentValue(int currentValue) {
-        this.currentValue = currentValue;
-    }
-
-    public void setMinUnitValue(int minUnitValue) {
-        this.minUnitValue = minUnitValue;
-    }
-
-    public void setTextSize(int textSize) {
-        this.textSize = textSize;
-    }
-
-    public void setTextColor(int textColor) {
-        this.textColor = textColor;
-    }
-
-    public void setDividerColor(int dividerColor) {
-        this.dividerColor = dividerColor;
-    }
-
-    public void setIndicatrixColor(int indicatrixColor) {
-        this.indicatrixColor = indicatrixColor;
-    }
-
-    public void setMinCurrentValue(int minCurrentValue) {
-        this.minCurrentValue = minCurrentValue;
-    }
+    private int rollingWidth;
 
     public SlideRuler(Context context) {
         this(context,null);
@@ -107,6 +71,10 @@ public class SlideRuler extends View{
 
     public SlideRuler(Context context, AttributeSet attributeSet){
         this(context,attributeSet,0);
+    }
+
+    public void setSlideRulerDataInterface(SlideRulerDataInterface slideRulerDataInterface) {
+        this.slideRulerDataInterface = slideRulerDataInterface;
     }
 
     public SlideRuler(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -131,7 +99,6 @@ public class SlideRuler extends View{
         linePaint.setStyle(Paint.Style.STROKE);
         linePaint.setTextSize(textSize);
 
-        data=marginWidth*(currentValue*minUnitValue);
         scroller=new Scroller(context);
         mDetector=new GestureDetector(context,myGestureListener);
     }
@@ -159,17 +126,29 @@ public class SlideRuler extends View{
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         marginWidth=getWidth()/30;
         marginHeight=getWidth()/40;
+        rollingWidth=(int)(marginWidth*cursorNum());
         slideRulerWidth=(maxValue/minUnitValue)*marginWidth;
+        super.onSizeChanged(w, h, oldw, oldh);
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
         drawBaseView(canvas);
         drawBaseLine(canvas);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        mDetector.onTouchEvent(event);
+        switch(event.getAction()){
+            case MotionEvent.ACTION_UP:
+                mDetector.onTouchEvent(event);
+            default:
+                mDetector.onTouchEvent(event);
+                break;
+        }
         return true;
     }
 
@@ -184,8 +163,8 @@ public class SlideRuler extends View{
     //画初始的界面
     public void drawBaseView(Canvas canvas){
         int left= (currentValue-minValue)/minUnitValue;
-        int residueData=(currentValue-minValue)%minUnitValue;
-        int startCursor=(getWidth()/2)-(marginWidth*left)-(int)(marginWidth*(float)residueData/minUnitValue);
+        int residuerollingWidth=(currentValue-minValue)%minUnitValue;
+        int startCursor=(getWidth()/2)-(marginWidth*left)-(int)(marginWidth*(float)residuerollingWidth/minUnitValue);
         for(int i=0;i<(maxValue/minUnitValue)+1;i++){
             float xValue=startCursor+(marginWidth*i);
             if(i%10==0){
@@ -200,38 +179,67 @@ public class SlideRuler extends View{
     @Override
     public void computeScroll() {
         if(scroller.computeScrollOffset()){
-            scrollTo(scroller.getCurrX(),0);
-            invalidate();
+            updateView(scroller.getCurrX());
         }
+//        else{
+//            updateRulerView();
+//        }
     }
 
     private GestureDetector.SimpleOnGestureListener myGestureListener =new  GestureDetector.SimpleOnGestureListener(){
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            updateView((int)distanceX);
+            updateView(rollingWidth+(int)distanceX);
             return true;
         }
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-//            scroller.fling(data,0,(int)(-velocityX/1.5),0,0,(maxValue/minUnitValue)*marginWidth,0,0);
+            scroller.fling(rollingWidth,0,(int)(-velocityX/1.5),0,0,(maxValue/minUnitValue)*marginWidth,0,0);
             return true;
         }
     };
 
-    public void updateView(int distanceX){
-        data=data+distanceX;
-        float itemNum=(float)data/marginWidth;
+    public void updateView(int srcollWidth){
+        if(slideRulerDataInterface!=null){
+            slideRulerDataInterface.getText(srcollWidth+"");
+        }
+        rollingWidth=srcollWidth;
+        float itemNum=(float)srcollWidth/marginWidth;
         currentValue=(int)(minUnitValue*itemNum);
-        Log.e("currentValue",currentValue+"");
         if(currentValue<=minValue){
-            data=0;
+            rollingWidth=0;
             currentValue=minValue;
         }
         if(currentValue>=maxValue){
-            data=marginWidth*(maxValue/minUnitValue);
+            rollingWidth=marginWidth*allCursorNum();
             currentValue=maxValue;
         }
         invalidate();
     }
+
+    public void updateRulerView(){
+        int itemNum=(int)Math.rint((float)rollingWidth/marginWidth);
+        currentValue=minUnitValue*itemNum;
+        if(currentValue<=minValue){
+            rollingWidth=0;
+            currentValue=minValue;
+        }
+        if(currentValue>=maxValue){
+            rollingWidth=marginWidth*allCursorNum();
+            currentValue=maxValue;
+        }
+        invalidate();
+    }
+
+    //获取的指针数
+    public float cursorNum(){
+        return (float)currentValue/minUnitValue;
+    }
+
+    //获取所有的指针个数
+    public int allCursorNum(){
+        return maxValue/minUnitValue;
+    }
+
 
 }

@@ -11,6 +11,16 @@
     android:orientation="vertical"
     tools:context="com.jack.slideruler.MainActivity">
 
+    <TextView
+        android:id="@+id/data"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="15dp"
+        android:textSize="20dp"
+        android:text="1000"/>
+
     <com.jack.slideruler.MnScaleBar
         android:layout_width="match_parent"
         android:layout_height="100dp"
@@ -27,6 +37,7 @@
         android:layout_width="match_parent"
         android:layout_height="70dp"
         android:layout_centerInParent="true"
+        app:textSize="16dp"
         app:minValue="0"
         app:maxValue="200000"
         app:currentValue="1500"

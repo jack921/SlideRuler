@@ -11,6 +11,7 @@ import android.os.Message;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -88,7 +89,8 @@ public class RulerView extends View {
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.RulerView);
         maxValue = typedArray.getDimensionPixelOffset(R.styleable.RulerView_max_value, 200000);
         minValue = typedArray.getDimensionPixelOffset(R.styleable.RulerView_min_value, 0);
-        scaleTextSize = typedArray.getDimensionPixelOffset(R.styleable.RulerView_scale_text_size, 24);
+        scaleTextSize = typedArray.getDimensionPixelOffset(R.styleable.RulerView_scale_text_size,(int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_SP,15,getResources().getDisplayMetrics()));
         scaleTextColor = typedArray.getColor(R.styleable.RulerView_scale_text_color, Color.parseColor("#d8d8d8"));
         scaleSelectColor = typedArray.getColor(R.styleable.RulerView_scale_select_color, Color.parseColor("#76e4ff"));
         scaleSelectBackgroundColor = typedArray.getColor(R.styleable.RulerView_scale_select_background_color, Color.parseColor("#6676e4ff"));
