@@ -47,23 +47,28 @@ public class SlideRuler extends View{
     private int indicatrixColor;
     //画线的画笔
     private Paint linePaint;
-    // 最低速度
-    private static final int MIN_DELTA_FOR_SCROLLING = 1;
-    // 消息
-    private final int MESSAGE_SCROLL = 0;
     //控价的宽度
     private int slideRulerWidth=0;
-
+    //滑动的宽度
+    private int rollingWidth;
+    //屏幕的宽
+    private int wrapcontentWidth;
+    //屏幕的高
+    private int wrapcontentHeight;
+    //数据回调接口
     private SlideRulerDataInterface slideRulerDataInterface;
+    //正在滑动状态
+    private int isScrollState=1;
+    //快速一滑
+    private int fastScrollState=2;
+    //结束滑动
+    private int finishScrollState=3;
+
     private Scroller scroller;
     private GestureDetector mDetector;
     private Display display =null;
     private int marginWidth=0;
     private int marginHeight=0;
-    private int wrapcontentWidth;
-    private int wrapcontentHeight;
-
-    private int rollingWidth;
 
     public SlideRuler(Context context) {
         this(context,null);
@@ -81,6 +86,7 @@ public class SlideRuler extends View{
         super(context,attrs,defStyleAttr);
         display=((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         wrapcontentWidth=display.getWidth();
+        wrapcontentHeight=display.getHeight();
 
         TypedArray typedArray=context.getTheme().obtainStyledAttributes(attrs,R.styleable.slideruler,defStyleAttr,0);
         textSize = typedArray.getDimensionPixelOffset(R.styleable.slideruler_textSize,24);
@@ -135,8 +141,10 @@ public class SlideRuler extends View{
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(Canvas canvas){
+        //画最基础的两条线
         drawBaseView(canvas);
+        //画初始的界面
         drawBaseLine(canvas);
     }
 
@@ -144,7 +152,7 @@ public class SlideRuler extends View{
     public boolean onTouchEvent(MotionEvent event) {
         switch(event.getAction()){
             case MotionEvent.ACTION_UP:
-                mDetector.onTouchEvent(event);
+                updateView(0,finishScrollState);
             default:
                 mDetector.onTouchEvent(event);
                 break;
@@ -154,8 +162,10 @@ public class SlideRuler extends View{
 
     //画最基础的两条线
     public void drawBaseLine(Canvas canvas){
+        //画中间的线
         linePaint.setColor(indicatrixColor);
         canvas.drawLine(getWidth()/2,0,getWidth()/2,getHeight(),linePaint);
+        //画底部的直线
         linePaint.setColor(dividerColor);
         canvas.drawLine(0,getHeight(),slideRulerWidth,getHeight(),linePaint);
     }
@@ -176,59 +186,39 @@ public class SlideRuler extends View{
         }
     }
 
+    //动态更新滑动View
+    public void updateView(int srcollWidth,int action){
+        if(action==isScrollState){
+            rollingWidth=srcollWidth;
+            float itemNum=(float)srcollWidth/marginWidth;
+            currentValue=(int)(minUnitValue*itemNum);
+        }else if(action==fastScrollState){
+            rollingWidth=srcollWidth;
+            int itemNum=(int)Math.rint((float)rollingWidth/marginWidth);
+            currentValue=(minUnitValue*itemNum);
+        }else if(action==finishScrollState){
+            int itemNum=(int)Math.rint((float)rollingWidth/marginWidth);
+            currentValue=minUnitValue*itemNum;
+        }
+        if(slideRulerDataInterface!=null){
+            slideRulerDataInterface.getText(currentValue+"");
+        }
+        if(currentValue<=minValue){
+            rollingWidth=0;
+            currentValue=minValue;
+        }
+        if(currentValue>=maxValue){
+            rollingWidth=marginWidth*allCursorNum();
+            currentValue=maxValue;
+        }
+        invalidate();
+    }
+
     @Override
     public void computeScroll() {
         if(scroller.computeScrollOffset()){
-            updateView(scroller.getCurrX());
+            updateView(scroller.getCurrX(),fastScrollState);
         }
-//        else{
-//            updateRulerView();
-//        }
-    }
-
-    private GestureDetector.SimpleOnGestureListener myGestureListener =new  GestureDetector.SimpleOnGestureListener(){
-        @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            updateView(rollingWidth+(int)distanceX);
-            return true;
-        }
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            scroller.fling(rollingWidth,0,(int)(-velocityX/1.5),0,0,(maxValue/minUnitValue)*marginWidth,0,0);
-            return true;
-        }
-    };
-
-    public void updateView(int srcollWidth){
-        if(slideRulerDataInterface!=null){
-            slideRulerDataInterface.getText(srcollWidth+"");
-        }
-        rollingWidth=srcollWidth;
-        float itemNum=(float)srcollWidth/marginWidth;
-        currentValue=(int)(minUnitValue*itemNum);
-        if(currentValue<=minValue){
-            rollingWidth=0;
-            currentValue=minValue;
-        }
-        if(currentValue>=maxValue){
-            rollingWidth=marginWidth*allCursorNum();
-            currentValue=maxValue;
-        }
-        invalidate();
-    }
-
-    public void updateRulerView(){
-        int itemNum=(int)Math.rint((float)rollingWidth/marginWidth);
-        currentValue=minUnitValue*itemNum;
-        if(currentValue<=minValue){
-            rollingWidth=0;
-            currentValue=minValue;
-        }
-        if(currentValue>=maxValue){
-            rollingWidth=marginWidth*allCursorNum();
-            currentValue=maxValue;
-        }
-        invalidate();
     }
 
     //获取的指针数
@@ -241,5 +231,18 @@ public class SlideRuler extends View{
         return maxValue/minUnitValue;
     }
 
+    private GestureDetector.SimpleOnGestureListener myGestureListener =new  GestureDetector.SimpleOnGestureListener(){
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            updateView(rollingWidth+(int)distanceX,isScrollState);
+            return true;
+        }
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            Log.e("onFling","onFling");
+            scroller.fling(rollingWidth,0,(int)(-velocityX/1.5),0,0,(maxValue/minUnitValue)*marginWidth,0,0);
+            return true;
+        }
+    };
 
 }
