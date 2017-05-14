@@ -5,11 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.os.Handler;
-import android.os.Message;
-import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.GestureDetector;
@@ -18,8 +14,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Scroller;
 
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
 
 /**
  * Created by Jack on 2017/5/3.
@@ -55,6 +49,14 @@ public class SlideRuler extends View{
     private int wrapcontentWidth;
     //屏幕的高
     private int wrapcontentHeight;
+    //一屏显示Item
+    private int showItemSize;
+    //刻度和数值的间距
+    private int marginCursorData;
+    //长刻度的大小
+    private int longCursor;
+    //短刻度的大小
+    private int shortCursor;
     //数据回调接口
     private SlideRulerDataInterface slideRulerDataInterface;
     //正在滑动状态
@@ -63,12 +65,10 @@ public class SlideRuler extends View{
     private int fastScrollState=2;
     //结束滑动
     private int finishScrollState=3;
-
-    private Scroller scroller;
     private GestureDetector mDetector;
     private Display display =null;
+    private Scroller scroller;
     private int marginWidth=0;
-    private int marginHeight=0;
 
     public SlideRuler(Context context) {
         this(context,null);
@@ -82,31 +82,95 @@ public class SlideRuler extends View{
         this.slideRulerDataInterface = slideRulerDataInterface;
     }
 
+    public void setMinValue(int minValue) {
+        this.minValue = minValue;
+    }
+
+    public void setMaxValue(int maxValue) {
+        this.maxValue = maxValue;
+    }
+
+    public void setCurrentValue(int currentValue) {
+        this.currentValue = currentValue;
+    }
+
+    public void setMinUnitValue(int minUnitValue) {
+        this.minUnitValue = minUnitValue;
+    }
+
+    public void setMinCurrentValue(int minCurrentValue) {
+        this.minCurrentValue = minCurrentValue;
+    }
+
+    public void setTextSize(int textSize) {
+        this.textSize = textSize;
+    }
+
+    public void setTextColor(int textColor) {
+        this.textColor = textColor;
+    }
+
+    public void setDividerColor(int dividerColor) {
+        this.dividerColor = dividerColor;
+    }
+
+    public void setIndicatrixColor(int indicatrixColor) {
+        this.indicatrixColor = indicatrixColor;
+    }
+
+    public void setLongCursor(int longCursor) {
+        this.longCursor = longCursor;
+    }
+
+    public void setShortCursor(int shortCursor) {
+        this.shortCursor = shortCursor;
+    }
+
+    public void setMarginCursorData(int marginCursorData) {
+        this.marginCursorData = marginCursorData;
+    }
+
+    public void setShowItemSize(int showItemSize) {
+        this.showItemSize = showItemSize;
+    }
+
     public SlideRuler(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context,attrs,defStyleAttr);
         display=((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        //屏幕宽高
         wrapcontentWidth=display.getWidth();
         wrapcontentHeight=display.getHeight();
-
+        //初始化自定义的参数
         TypedArray typedArray=context.getTheme().obtainStyledAttributes(attrs,R.styleable.slideruler,defStyleAttr,0);
-        textSize = typedArray.getDimensionPixelOffset(R.styleable.slideruler_textSize,24);
+        textSize = typedArray.getDimensionPixelSize(R.styleable.slideruler_textSize,(int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_SP,15,getResources().getDisplayMetrics()));
         textColor=typedArray.getColor(R.styleable.slideruler_textColor,Color.DKGRAY);
         dividerColor=typedArray.getColor(R.styleable.slideruler_dividerColor,Color.BLACK);
-        indicatrixColor=typedArray.getColor(R.styleable.slideruler_indicatrixColor,Color.GREEN);
-        minValue=typedArray.getInteger(R.styleable.slideruler_minValue,0);
-        maxValue=typedArray.getInteger(R.styleable.slideruler_maxValue,199000);
-        currentValue=typedArray.getInteger(R.styleable.slideruler_currentValue,10000);
-        minUnitValue=typedArray.getInteger(R.styleable.slideruler_minUnitValue,1000);
-        minCurrentValue=typedArray.getInteger(R.styleable.slideruler_minCurrentValue,1000);
+        indicatrixColor=typedArray.getColor(R.styleable.slideruler_indicatrixColor,Color.BLACK);
+        minValue=typedArray.getInteger(R.styleable.slideruler_min_value,0);
+        maxValue=typedArray.getInteger(R.styleable.slideruler_max_value,199000);
+        currentValue=typedArray.getInteger(R.styleable.slideruler_current_value,10000);
+        minUnitValue=typedArray.getInteger(R.styleable.slideruler_min_unitValue,1000);
+        minCurrentValue=typedArray.getInteger(R.styleable.slideruler_min_currentValue,1000);
+        showItemSize=typedArray.getInteger(R.styleable.slideruler_show_itemSize,30);
+        marginCursorData=typedArray.getDimensionPixelSize(R.styleable.slideruler_margin_cursor_data,(int)TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_SP,10,getResources().getDisplayMetrics()));
+        longCursor=typedArray.getDimensionPixelSize(R.styleable.slideruler_longCursor,(int)TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_SP,25,getResources().getDisplayMetrics()));
+        shortCursor=typedArray.getDimensionPixelSize(R.styleable.slideruler_shortCursor,(int)TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_SP,15,getResources().getDisplayMetrics()));
 
+        scroller=new Scroller(context);
+        mDetector=new GestureDetector(context,myGestureListener);
+
+        //初始化Paint
         linePaint=new Paint();
         linePaint.setAntiAlias(true);
         linePaint.setTextAlign(Paint.Align.CENTER);
         linePaint.setStyle(Paint.Style.STROKE);
         linePaint.setTextSize(textSize);
-
-        scroller=new Scroller(context);
-        mDetector=new GestureDetector(context,myGestureListener);
+        //检查当前值是不是正确值
+        checkCurrentValue();
     }
 
     @Override
@@ -133,9 +197,11 @@ public class SlideRuler extends View{
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        marginWidth=getWidth()/30;
-        marginHeight=getWidth()/40;
+        //计算每个刻度的间距
+        marginWidth=getWidth()/showItemSize;
+        //开始时的距离
         rollingWidth=(int)(marginWidth*cursorNum());
+        //整个控件的宽度
         slideRulerWidth=(maxValue/minUnitValue)*marginWidth;
         super.onSizeChanged(w, h, oldw, oldh);
     }
@@ -172,16 +238,23 @@ public class SlideRuler extends View{
 
     //画初始的界面
     public void drawBaseView(Canvas canvas){
-        int left= (currentValue-minValue)/minUnitValue;
-        int residuerollingWidth=(currentValue-minValue)%minUnitValue;
-        int startCursor=(getWidth()/2)-(marginWidth*left)-(int)(marginWidth*(float)residuerollingWidth/minUnitValue);
+        //整数刻度的个数
+        int integerWidth= (int)Math.rint((currentValue-minValue)/minUnitValue);
+        //剩余不整一个刻度的数值
+        int residueWidth=(currentValue-minValue)%minUnitValue;
+        //开始画图的X轴位置
+        int startCursor=(getWidth()/2)-(marginWidth*integerWidth)-(int)(marginWidth*(float)residueWidth/minUnitValue);
         for(int i=0;i<(maxValue/minUnitValue)+1;i++){
             float xValue=startCursor+(marginWidth*i);
             if(i%10==0){
-                canvas.drawLine(xValue,getHeight(),xValue,getHeight()-40,linePaint);
-                canvas.drawText((minCurrentValue*i)+"",xValue,getHeight()-40-marginHeight,linePaint);
+                //画长刻度
+                linePaint.setColor(textColor);
+                canvas.drawText((minCurrentValue*i)+"",xValue,getHeight()-longCursor-marginCursorData,linePaint);
+                linePaint.setColor(dividerColor);
+                canvas.drawLine(xValue,getHeight(),xValue,getHeight()-longCursor,linePaint);
             }else{
-                canvas.drawLine(xValue,getHeight(),xValue,getHeight()-25,linePaint);
+                //画短刻度
+                canvas.drawLine(xValue,getHeight(),xValue,getHeight()-shortCursor,linePaint);
             }
         }
     }
@@ -189,27 +262,33 @@ public class SlideRuler extends View{
     //动态更新滑动View
     public void updateView(int srcollWidth,int action){
         if(action==isScrollState){
+            //正在滑动状态
             rollingWidth=srcollWidth;
             float itemNum=(float)srcollWidth/marginWidth;
             currentValue=(int)(minUnitValue*itemNum);
         }else if(action==fastScrollState){
+            //快速一滑
             rollingWidth=srcollWidth;
             int itemNum=(int)Math.rint((float)rollingWidth/marginWidth);
             currentValue=(minUnitValue*itemNum);
         }else if(action==finishScrollState){
+            //结束滑动
             int itemNum=(int)Math.rint((float)rollingWidth/marginWidth);
             currentValue=minUnitValue*itemNum;
         }
-        if(slideRulerDataInterface!=null){
-            slideRulerDataInterface.getText(currentValue+"");
+        //判断是否在最小选择值
+        if(currentValue<=minCurrentValue){
+            rollingWidth=(minCurrentValue/minUnitValue)*marginWidth;
+            currentValue=minCurrentValue;
         }
-        if(currentValue<=minValue){
-            rollingWidth=0;
-            currentValue=minValue;
-        }
+        //判断是否在最大值
         if(currentValue>=maxValue){
             rollingWidth=marginWidth*allCursorNum();
             currentValue=maxValue;
+        }
+        //回调数值
+        if(slideRulerDataInterface!=null){
+            slideRulerDataInterface.getText(currentValue+"");
         }
         invalidate();
     }
@@ -217,6 +296,7 @@ public class SlideRuler extends View{
     @Override
     public void computeScroll() {
         if(scroller.computeScrollOffset()){
+            //快滑刷新UI
             updateView(scroller.getCurrX(),fastScrollState);
         }
     }
@@ -234,15 +314,35 @@ public class SlideRuler extends View{
     private GestureDetector.SimpleOnGestureListener myGestureListener =new  GestureDetector.SimpleOnGestureListener(){
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            //滑动刷新UI
             updateView(rollingWidth+(int)distanceX,isScrollState);
             return true;
         }
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            Log.e("onFling","onFling");
+            //快速滑动的动画
             scroller.fling(rollingWidth,0,(int)(-velocityX/1.5),0,0,(maxValue/minUnitValue)*marginWidth,0,0);
             return true;
         }
     };
+
+    //检查当前值是不是正确值
+    public void checkCurrentValue(){
+        if(currentValue<minValue){
+            if(minValue<minCurrentValue){
+                currentValue=minCurrentValue;
+            }else{
+                currentValue=minValue;
+            }
+        }
+        if(currentValue>maxValue){
+            currentValue=maxValue;
+        }
+        if(currentValue%minUnitValue!=0){
+            int num=currentValue/minCurrentValue;
+            currentValue=minUnitValue*(num+1);
+        }
+    }
+
 
 }

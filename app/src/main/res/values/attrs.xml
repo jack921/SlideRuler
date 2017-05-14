@@ -2,41 +2,32 @@
 <resources>
 
     <declare-styleable name="slideruler">
-        <attr name="minValue" format="integer"/>
-        <attr name="maxValue" format="integer"/>
-        <attr name="currentValue" format="integer"></attr>
-        <attr name="minUnitValue" format="integer"></attr>
-        <attr name="minCurrentValue" format="integer"></attr>
+        <!--最小值-->
+        <attr name="min_value" format="integer"/>
+        <!--最大值-->
+        <attr name="max_value" format="integer"/>
+        <!--当前值-->
+        <attr name="current_value" format="integer"></attr>
+        <!--最小单位值-->
+        <attr name="min_unitValue" format="integer"></attr>
+        <!--最小当前值-->
+        <attr name="min_currentValue" format="integer"></attr>
+        <!--数值字体大小-->
         <attr name="textSize" format="dimension"></attr>
+        <!---数值字体颜色-->
         <attr name="textColor" format="integer"></attr>
+        <!--底部和刻度的线颜色-->
         <attr name="dividerColor" format="integer"></attr>
+        <!--指示器的颜色-->
         <attr name="indicatrixColor" format="integer"></attr>
-    </declare-styleable>
-
-
-    <declare-styleable name="RulerView">
-        <!--最大刻度-->
-        <attr name="max_value" format="dimension" />
-        <!--最小刻度-->
-        <attr name="min_value" format="dimension" />
-        <!--刻度字体大小-->
-        <attr name="scale_text_size" format="dimension" />
-        <!--刻度字体颜色-->
-        <attr name="scale_text_color" format="color" />
-        <!--刻度超过颜色-->
-        <attr name="scale_select_color" format="color" />
-        <!--刻度超过颜色背景-->
-        <attr name="scale_select_background_color" format="color" />
-        <!--刻度未超颜色-->
-        <attr name="scale_unselect_color" format="color" />
-        <!--标记颜色-->
-        <attr name="tag_color" format="color" />
-        <!--标尺开始显示位置-->
-        <attr name="start_location" format="dimension" />
         <!--一屏显示Item-->
-        <attr name="show_item_size" format="integer" />
-        <!--一个刻度的大小-->
-        <attr name="one_item_value" format="integer" />
+        <attr name="show_itemSize" format="integer" ></attr>
+        <!--刻度和数值的间距-->
+        <attr name="margin_cursor_data" format="dimension"></attr>
+        <!--长指针大小-->
+        <attr name="longCursor" format="dimension"></attr>
+        <!--短指针大小-->
+        <attr name="shortCursor" format="dimension"></attr>
     </declare-styleable>
 
 </resources>
