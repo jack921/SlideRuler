@@ -4,7 +4,7 @@
 
 添加引用:
 
-######  Add it in your root build.gradle at the end of repositories:
+######  在根目录的build.gradle里添加
 ```
 allprojects {
 	repositories {
@@ -13,7 +13,7 @@ allprojects {
 	}
 }
 ```
-###### Add the dependency
+###### 在app目录的build.gradle里添加
 
 ```
 dependencies {
