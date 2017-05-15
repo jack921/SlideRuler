@@ -57,18 +57,20 @@ public class SlideRuler extends View{
     private int longCursor;
     //短刻度的大小
     private int shortCursor;
+    //计算每个刻度的间距
+    private int marginWidth=0;
     //数据回调接口
     private SlideRulerDataInterface slideRulerDataInterface;
     //正在滑动状态
-    private int isScrollState=1;
+    private int isScrollingState=1;
     //快速一滑
     private int fastScrollState=2;
     //结束滑动
     private int finishScrollState=3;
+
     private GestureDetector mDetector;
     private Display display =null;
     private Scroller scroller;
-    private int marginWidth=0;
 
     public SlideRuler(Context context) {
         this(context,null);
@@ -244,7 +246,7 @@ public class SlideRuler extends View{
         int residueWidth=(currentValue-minValue)%minUnitValue;
         //开始画图的X轴位置
         int startCursor=(getWidth()/2)-(marginWidth*integerWidth)-(int)(marginWidth*(float)residueWidth/minUnitValue);
-        for(int i=0;i<(maxValue/minUnitValue)+1;i++){
+        for(int i=0;i<allCursorNum()+1;i++){
             float xValue=startCursor+(marginWidth*i);
             if(i%10==0){
                 //画长刻度
@@ -261,18 +263,18 @@ public class SlideRuler extends View{
 
     //动态更新滑动View
     public void updateView(int srcollWidth,int action){
-        if(action==isScrollState){
-            //正在滑动状态
+        if(action==isScrollingState){
+            //正在滑动状态(onScroll())
             rollingWidth=srcollWidth;
             float itemNum=(float)srcollWidth/marginWidth;
             currentValue=(int)(minUnitValue*itemNum);
         }else if(action==fastScrollState){
-            //快速一滑
+            //快速一滑(onFling())
             rollingWidth=srcollWidth;
             int itemNum=(int)Math.rint((float)rollingWidth/marginWidth);
             currentValue=(minUnitValue*itemNum);
         }else if(action==finishScrollState){
-            //结束滑动
+            //结束滑动(ACTION_UP)
             int itemNum=(int)Math.rint((float)rollingWidth/marginWidth);
             currentValue=minUnitValue*itemNum;
         }
@@ -315,7 +317,7 @@ public class SlideRuler extends View{
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             //滑动刷新UI
-            updateView(rollingWidth+(int)distanceX,isScrollState);
+            updateView(rollingWidth+(int)distanceX,isScrollingState);
             return true;
         }
         @Override

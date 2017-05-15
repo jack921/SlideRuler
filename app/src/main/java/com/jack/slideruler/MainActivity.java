@@ -8,7 +8,6 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private MyViewGroup myViewGroup;
     private SlideRuler slideruler;
     private TextView data_tv;
 
@@ -16,8 +15,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        setContentView(R.layout.activity_test);
-//        myViewGroup = (MyViewGroup) findViewById(R.id.myviewGroup);
         slideruler=(SlideRuler) findViewById(R.id.slideruler);
         data_tv=(TextView)findViewById(R.id.data);
         slideruler.setSlideRulerDataInterface(new SlideRulerDataInterface() {
@@ -28,8 +25,5 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void scroll(View view) {
-        myViewGroup.beginScroll();
-    }
 
 }
